@@ -168,3 +168,11 @@ Premier League/
 Serie A Tim/
 La Liga/
 Championship/
+
+# Excel temporary files
+~$*.xlsx
+~$*.xls
+*.tmp
+
+# Generated Excel files
+*.xlsx

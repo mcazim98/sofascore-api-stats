@@ -11,9 +11,18 @@ season = c.get_last_season(tournament)
 teams = c.get_standings(tournament, season)
 
 for team in teams:
+  print(f"\nProcessing team: {team['name']}")
   events = c.get_events(tournament, season, team)
-  statistics = c.get_statistics(events)
-  file = c.create_file(tournament, team, statistics)
+  print(f"Events found: {len(events) if events else 0}")
+  
+  if events:
+    statistics = c.get_statistics(events)
+    print(f"Statistics processed for {len(statistics)} events")
+    file = c.create_file(tournament, team, statistics)
+  else:
+    print(f"No events found for {team['name']}, skipping...")
+    # Create empty file to indicate the team was processed
+    c.create_file(tournament, team, [])
 
 end = time.time()
 duration = (end - start) / 60

@@ -10,15 +10,21 @@ def get_url_data(url, headers):
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return json.loads(response.text)
-    except:
-        print("Error accessing URL")
+        else:
+            print(f"HTTP Error {response.status_code} for URL: {url}")
+            return None
+    except Exception as e:
+        print(f"Error accessing URL {url}: {str(e)}")
+        return None
 
 def get_last_season(tournament):
   # access the seasons endpoint and get the latest
   url = f"https://api.sofascore.com/api/v1/tournament/{tournament['id']}/seasons"
   seasons = get_url_data(url, o.headers)
-  print(f"Última temporada: {seasons['seasons'][0]['year']}")
-  return seasons['seasons'][0]['id']
+  print(f"Total seasons found: {len(seasons['seasons'])}")
+  print(seasons)
+  print(f"Última temporada: {seasons['seasons'][1]['year']}")
+  return seasons['seasons'][1]['id']
 
 def get_standings(tournament, season):
   '''
@@ -83,16 +89,27 @@ def get_event_statistics(id):
     The statistics object is a list with 3 items: full Period, first half and second half, so I pick the first item
   '''
   result = []
-  url = f"https://api.sofascore.com/api/v1/event/{id}/statistics"
-  data = get_url_data(url, o.headers)
-  statistics = data['statistics'][0]    
-  for g in statistics['groups']:
-      if g['groupName'] in o.groups:
-          items = g['statisticsItems']
-          for i in items:
-              if i['name'] in o.statisticsItems:
-                  result.append(i)
-  return result
+  try:
+    url = f"https://api.sofascore.com/api/v1/event/{id}/statistics"
+    data = get_url_data(url, o.headers)
+    
+    if not data or 'statistics' not in data or not data['statistics']:
+      print(f"No statistics data found for event {id}")
+      return result
+      
+    statistics = data['statistics'][0]    
+    for g in statistics['groups']:
+        if g['groupName'] in o.groups:
+            items = g['statisticsItems']
+            for i in items:
+                if i['name'] in o.statisticsItems:
+                    result.append(i)
+    
+    print(f"Found {len(result)} statistics for event {id}")
+    return result
+  except Exception as e:
+    print(f"Error getting statistics for event {id}: {str(e)}")
+    return result
 
 def check_if_folder_exists(tournament):
   '''
